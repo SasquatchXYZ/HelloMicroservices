@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Nancy.Owin;
 
 namespace HelloMicroservices
 {
@@ -20,12 +21,15 @@ namespace HelloMicroservices
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
+            app.UseOwin(buildFunc =>
             {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.Run(async (context) => { await context.Response.WriteAsync("Hello World!"); });
+                buildFunc(next => environ =>
+                {
+                    System.Console.WriteLine("Got Request.");
+                    return next(environ);
+                });
+                buildFunc.UseNancy();
+            });
         }
     }
 }
